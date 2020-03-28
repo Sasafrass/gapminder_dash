@@ -50,29 +50,8 @@ fig = dict(data=data, layout=layout)
 
 
 ################################################
-# Select a specific country from df
-country_name = "Netherlands"
-country_df = df.query('country == @country_name')
-country_year = country_df['year']
-country_gdpPercap = country_df['gdpPercap']
-
-# Make line plot for single country
-country_gdp = go.Scatter(
-    x = list(country_year),
-    y = list(country_gdpPercap),
-    name="gdp_country"
-)
-
-# Put the plot in list, make layout and fig
-data_country   = [country_gdp]
-country_layout = dict(
-    title="GDP of {} throughout the years".format(country_name),
-    showlegend=False
-)
-country_fig    =  dict(data=data_country, layout = country_layout)
 
 ################################################
-
 
 # Initialize app and style it
 app = dash.Dash()
@@ -84,6 +63,11 @@ app.layout = html.Div([
         html.Img(src="/assets/stock-icon.png")
     ], className="banner"),
 
+    # div for dropdown
+    html.Div([
+        
+    ])
+
     # div for input box
     html.Div([
         dcc.Input(
@@ -92,16 +76,6 @@ app.layout = html.Div([
             type="text"
         )
     ]),
-
-    # # div for dropdown
-    # html.Div(
-    #     dcc.Dropdown(
-    #         options = [
-    #             {'label': 'Candlestick', 'value':'Candlestick'},
-    #             {'label': 'Line', 'value':'Line'}
-    #         ]
-    #     )
-    # ),
 
     # div for external css
     html.Div([
@@ -114,8 +88,7 @@ app.layout = html.Div([
 
         # Div for second graph
         html.Div([
-            dcc.Graph(id="country-chart",
-                      figure=country_fig)
+            dcc.Graph(id="country-chart")
         ], className = "six columns"),
 
     ], className="row")
@@ -129,9 +102,32 @@ app.css.append_css({
 
 # Callbacks
 # Update which element first, then what part of the element
-#@app.callback(dash.dependencies.Output("country-chart", "figure"),
-#              [dash.dependencies.Input("country-input", "value")])
-#def update_country(input_value):
+@app.callback(dash.dependencies.Output("country-chart", "figure"),
+             [dash.dependencies.Input("country-input", "value")])
+def update_country(input_value):
+    # Select a specific country from df
+    country_name = input_value.lower()
+    country_name = country_name.title()
+    country_df = df.query('country == @country_name')
+    country_year = country_df['year']
+    country_gdpPercap = country_df['gdpPercap']
+
+    # Make line plot for single country
+    country_gdp = go.Scatter(
+        x = list(country_year),
+        y = list(country_gdpPercap),
+        name="gdp_country"
+    )
+
+    # Put the plot in list, make layout and fig
+    data_country   = [country_gdp]
+    country_layout = dict(
+        title="GDP of {} throughout the years".format(country_name),
+        showlegend=False
+    )
+
+    country_fig  =  dict(data=data_country, layout = country_layout)
+    return country_fig
 
 
 # Run in DEBUG mode
