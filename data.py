@@ -17,4 +17,4 @@ def give_data_year(df, what_year):
     cont_remap = df_year.replace({"continent": cont2i})
     cont = cont_remap.continent
 
-    return country, pop, cont, exp, gdp, cont2i, i2cont
+    return df_year, country, pop, cont, exp, gdp, cont2i, i2cont
